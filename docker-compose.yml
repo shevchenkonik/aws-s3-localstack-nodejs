@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: "nestjs-app"
+    build: .
+    entrypoint: docker-entrypoint.sh
+    command: npm run start:dev
+    volumes:
+      - .:/home/node/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - localstack
+    networks:
+      - nestjs-aws-s3-localstack-upload
+
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - nestjs-aws-s3-localstack-upload
+
+networks:
+  nestjs-aws-s3-localstack-upload:
+    name: nestjs-aws-s3-localstack-upload
+    driver: bridge
