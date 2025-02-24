@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UploadService {
   private readonly s3Client: S3Client;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
-      endpoint: '', // TODO: replace with your endpoint
-      region: '', // TODO: replace with your region
+      endpoint: this.configService.get<string>('AWS_S3_GATEWAY'),
+      region: this.configService.get<string>('AWS_S3_REGION'),
+      forcePathStyle: true,
       credentials: {
-        accessKeyId: '', // TODO: replace with your access key ID
-        secretAccessKey: '', // TODO: replace with your secret access key
+        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY'),
+        secretAccessKey: this.configService.get<string>(
+          'AWS_SECRET_ACCESS_KEY',
+        ),
       },
     });
   }
@@ -19,7 +23,7 @@ export class UploadService {
   async upload(fileName: string, file: Buffer) {
     await this.s3Client.send(
       new PutObjectCommand({
-        Bucket: '', // TODO: replace with your bucket name
+        Bucket: this.configService.get<string>('AWS_S3_BUCKET'),
         Key: fileName,
         Body: file,
       }),

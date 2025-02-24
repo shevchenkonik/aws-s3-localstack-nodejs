@@ -21,12 +21,12 @@ export class UploadController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 10 }), // 10 MB
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
+          new FileTypeValidator({ fileType: /^image/ }),
         ],
       }),
     )
     file: Express.Multer.File,
   ) {
-    await this.uploadService.upload(file.filename, file.buffer);
+    await this.uploadService.upload(file.originalname, file.buffer);
   }
 }
