@@ -9,13 +9,34 @@ import {
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 
+class FileUploadDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: any;
+}
+
+@ApiTags('uploads')
 @Controller({ path: 'uploads' })
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('/images')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiCreatedResponse({
+    description: 'The file has been successfully uploaded.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'The image file',
+    type: FileUploadDto,
+  })
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
