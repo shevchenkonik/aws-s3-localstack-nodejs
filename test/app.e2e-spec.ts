@@ -23,7 +23,7 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!');
   });
 
-  it('/upload (POST)', () => {
+  it('/uploads/images (POST)', () => {
     return request(app.getHttpServer())
       .post('/upload')
       .attach('file', resolve(__dirname, './image.png'))
